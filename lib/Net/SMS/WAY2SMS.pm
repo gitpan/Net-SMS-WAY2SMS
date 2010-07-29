@@ -8,15 +8,15 @@ use Carp qw( croak );
 
 =head1 NAME
 
-Net::SMS::WAY2SMS - The great new Net::SMS::WAY2SMS!
+Net::SMS::WAY2SMS - Send SMS to any mobile phones in India using way2sms.com
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 
 =head1 SYNOPSIS
@@ -25,15 +25,15 @@ Perl module to send sms using way2sms for any mobile/s in India
 
 Usage:
 
-use Net::SMS::WAY2SMS;
-
-my $s = Net::SMS::WAY2SMS->new(
-	'user' => 'xyz' ,
-	'password' => 'xyzpassword',
-	'mob'=>['12343567890', '1111111111']
-);
-
-$s->send('Hello World');
+ 	use Net::SMS::WAY2SMS;
+ 
+ 	my $s = Net::SMS::WAY2SMS->new(
+ 		'user' => 'xyz' ,
+ 		'password' => 'xyzpassword',
+ 		'mob'=>['12343567890', '1111111111']
+ 	);
+ 
+ 	$s->send('Hello World');
 
 =head2 new
 
@@ -71,7 +71,7 @@ sub getMob
 
 =head2 send
 
-send the data to way2sms.com
+Send the data to way2sms.com
 
 =cut
 
@@ -155,9 +155,20 @@ You can find information about WAY2SMS at :
 
    http://www.way2sms.com/
 
+=head1 REQUIRES
+
+=over 4
+
+=item *
+
+WWW::Mechanize;
+Compress::Zlib;
+
+=back
+
 =head1 AUTHOR
 
-adarshtp, C<< <adarshtp at gmail.com> >>
+adarshtp, C<< <adarshtp at cpan.org> >>
 
 =head1 BUGS
 
