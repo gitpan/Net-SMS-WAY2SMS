@@ -12,11 +12,11 @@ Net::SMS::WAY2SMS - Send SMS to any mobile phones in India using way2sms.com
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 
 =head1 SYNOPSIS
@@ -38,10 +38,11 @@ Usage:
 =head2 new
 
 Creates a new instance
-Args:
-	'user' [required]
-	'password' [required]
-	'mob' [array reference of mobile numbers] - [required]
+
+	Args:
+		'user' [required]
+		'password' [required]
+		'mob' [array reference of mobile numbers] - [required]
 =cut
 
 sub new
@@ -103,15 +104,17 @@ sub send
 		$dest= $mech->response->content;
 		$header = $mech->response->header("Content-Encoding");
 		$mech->update_html($self->_getgzip($dest)) if($header && $header eq "gzip");
-		$mech->get("http://wwwl.way2sms.com/jsp/InstantSMS.jsp?val=0");
-		$dest= $mech->response->content;
-		$header = $mech->response->header("Content-Encoding");
-		$mech->update_html($self->_getgzip($dest)) if($header && $header eq "gzip");
-		print "Sending ... \n" if($self->{'debug'});
-		my $isLoggedIn = $mech->form_with_fields(("MobNo","textArea"));
-		die 'Unable to login... Please check your credentials' unless $isLoggedIn;
 		foreach my $mob (@mobs)
         {
+			$mech->get("http://wwwl.way2sms.com/jsp/InstantSMS.jsp?val=0");
+			$dest= $mech->response->content;
+			$header = $mech->response->header("Content-Encoding");
+			$mech->update_html($self->_getgzip($dest)) if($header && $header eq "gzip");
+			print "Sending ... \n" if($self->{'debug'});
+			my $isLoggedIn = $mech->form_with_fields(("MobNo","textArea"));
+			die 'Unable to login... Please check your credentials' unless $isLoggedIn;
+
+			print "$mob\n";
 			if($mob !~ /^\d+$/)
 			{
 				print "Error: Mobile numbers must be integers..." if($self->{'debug'});
@@ -131,7 +134,7 @@ sub send
 				die 'failed to send sms';
 			}
 			$dest =  $mech->response->content;
-			if($mech->response->header("Content-Encoding") eq "gzip")
+			if($mech->response->header("Content-Encoding") && $mech->response->header("Content-Encoding") eq "gzip")
 			{
 					$dest = Compress::Zlib::memGunzip($dest);
 			}
