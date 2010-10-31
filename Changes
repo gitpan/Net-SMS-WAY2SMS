@@ -6,3 +6,5 @@ Revision history for Net-SMS-WAY2SMS
 0.02	Fixed POD
 
 0.03	Fixed multiple sending of sms
+
+0.04	Fixed form encoding error and added auto loading

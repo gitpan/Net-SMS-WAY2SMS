@@ -1,0 +1,11 @@
+# Index created by AutoSplit for lib/Net/SMS/WAY2SMS.pm
+#    (file acts as timestamp)
+package Net::SMS::WAY2SMS;
+sub new 
+;
+sub getMob 
+;
+sub send 
+;
+sub _getgzip ();
+1;

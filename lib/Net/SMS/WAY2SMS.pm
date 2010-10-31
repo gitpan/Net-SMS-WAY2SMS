@@ -1,4 +1,7 @@
 package Net::SMS::WAY2SMS;
+use Exporter;
+use AutoLoader;
+@ISA = qw(Exporter AutoLoader);
 
 use strict;
 use warnings;
@@ -6,17 +9,19 @@ use WWW::Mechanize;
 use Compress::Zlib;
 use Carp qw( croak );
 
+__END__
+
 =head1 NAME
 
 Net::SMS::WAY2SMS - Send SMS to any mobile phones in India using way2sms.com
 
 =head1 VERSION
 
-Version 0.03
+Version 0.04
 
 =cut
 
-our $VERSION = '0.03';
+
 
 
 =head1 SYNOPSIS
@@ -45,19 +50,6 @@ Creates a new instance
 		'mob' [array reference of mobile numbers] - [required]
 =cut
 
-sub new
-{
-        my $class = shift;
-        my %args = @_;
-        my $self = {};
-		croak 'Username, password and mobile number are mandatory' if(!$args{'user'} || !$args{'password'} || !$args{'mob'});
-		$self->{'user'} = $args{'user'};
-		$self->{'password'} = $args{'password'};
-        $self->{'mob'} = ref $args{'mob'} eq 'ARRAY' ? $args{'mob'} : [$args{'mob'}];
-		$self->{'debug'} = $args{'debug'} || 0;
-        bless $self, $class;
-        return $self;
-}
 
 =head2 getMob
 
@@ -65,10 +57,6 @@ Returns the mobile number of the instance
 
 =cut
 
-sub getMob
-{
-        return @{$_[0]->{'mob'}};
-}
 
 =head2 send
 
@@ -76,81 +64,6 @@ Send the data to way2sms.com
 
 =cut
 
-sub send
-{
-        my ($self, $msg) = @_;
-        my @mobs = $self->getMob();
-        return croak "mobile numbers and sms text are missing" unless scalar @mobs || $msg;
-
-		print length($msg)."\n" if($self->{'debug'});
-		$msg = $msg."\n\n\n\n\n" if(length($msg) < 135);
-		my $mech = WWW::Mechanize->new();
-		$mech->get("http://wwwl.way2sms.com/content/index.html");
-		unless($mech->success())
-		{
-			die 'unable to login to way2sms';
-		}
-		my $dest = $mech->response->content;
-		my $header = $mech->response->header("Content-Encoding");
-		print "Fetching...\n" if($self->{'debug'});
-		$mech->update_html($self->_getgzip($dest)) if($header && $header eq "gzip");
-		$dest =~ s/<form name="loginForm"/<form action='..\/auth.cl' name="loginForm"/ig;
-		$mech->update_html($dest);
-		$mech->form_with_fields(("username","password"));
-		$mech->field("username", $self->{'user'});
-		$mech->field("password", $self->{'password'});
-		print "Loggin...\n" if($self->{'debug'});
-		$mech->submit_form();
-		$dest= $mech->response->content;
-		$header = $mech->response->header("Content-Encoding");
-		$mech->update_html($self->_getgzip($dest)) if($header && $header eq "gzip");
-		foreach my $mob (@mobs)
-        {
-			$mech->get("http://wwwl.way2sms.com/jsp/InstantSMS.jsp?val=0");
-			$dest= $mech->response->content;
-			$header = $mech->response->header("Content-Encoding");
-			$mech->update_html($self->_getgzip($dest)) if($header && $header eq "gzip");
-			print "Sending ... \n" if($self->{'debug'});
-			my $isLoggedIn = $mech->form_with_fields(("MobNo","textArea"));
-			die 'Unable to login... Please check your credentials' unless $isLoggedIn;
-
-			print "$mob\n";
-			if($mob !~ /^\d+$/)
-			{
-				print "Error: Mobile numbers must be integers..." if($self->{'debug'});
-				next;
-			}
-			$mech->field("MobNo", $mob);
-			$mech->field("textArea", $msg);
-			$mech->submit_form();
-
-			if($mech->success())
-			{
-				print "Done \n" if($self->{'debug'});
-			}
-			else
-			{
-				print "Failed \n" if($self->{'debug'});
-				die 'failed to send sms';
-			}
-			$dest =  $mech->response->content;
-			if($mech->response->header("Content-Encoding") && $mech->response->header("Content-Encoding") eq "gzip")
-			{
-					$dest = Compress::Zlib::memGunzip($dest);
-			}
-			if($dest =~ m/successfully/sig)
-			{
-			  print "Message sent successfully" if($self->{'debug'});
-			}
-		}
-        return;
-}
-
-sub _getgzip()
-{
-	my ($self, $dest) = @_;
-	return Compress::Zlib::memGunzip($dest);
-}
 
 =head1 WEBSITE
 
@@ -223,5 +136,3 @@ This program is released under the following license: GPL
 
 
 =cut
-
-1; # End of Net::SMS::WAY2SMS
