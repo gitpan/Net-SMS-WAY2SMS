@@ -17,7 +17,7 @@ Net::SMS::WAY2SMS - Send SMS to any mobile phones in India using way2sms.com
 
 =head1 VERSION
 
-Version 0.04
+Version 0.05
 
 =cut
 
