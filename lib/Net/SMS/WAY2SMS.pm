@@ -8,6 +8,7 @@ use warnings;
 use WWW::Mechanize;
 use Compress::Zlib;
 use Carp qw( croak );
+our $VERSION = '0.05';
 
 __END__
 
