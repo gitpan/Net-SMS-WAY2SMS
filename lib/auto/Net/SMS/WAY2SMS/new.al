@@ -4,7 +4,7 @@
 package Net::SMS::WAY2SMS;
 
 #line 48 "lib/Net/SMS/WAY2SMS.pm (autosplit into lib/auto/Net/SMS/WAY2SMS/new.al)"
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 
 

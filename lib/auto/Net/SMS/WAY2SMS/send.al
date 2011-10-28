@@ -22,7 +22,7 @@ sub send
 		my $header = $mech->response->header("Content-Encoding");
 		print "Fetching...\n" if($self->{'debug'});
 		$mech->update_html($self->_getgzip($dest)) if($header && $header eq "gzip");
-		$dest =~ s/<form .*name="loginForm"/<form action='..\/auth.cl' name="loginForm"/ig;
+		$dest =~ s/<form .*name="loginForm"/<form action='..\/Login1.action' name="loginForm"/ig;
 		$mech->update_html($dest);
 		$mech->form_with_fields(("username","password"));
 		$mech->field("username", $self->{'user'});
