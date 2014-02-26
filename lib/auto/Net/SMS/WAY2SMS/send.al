@@ -12,7 +12,7 @@ sub send
 
 		print length($msg)."\n" if($self->{'debug'});
 		$msg = $msg."\n\n\n\n\n" if(length($msg) < 135);
-		my $mech = WWW::Mechanize->new();
+		my $mech = WWW::Mechanize->new(cookie_jar => {});
 		$mech->get("http://wwwl.way2sms.com/content/index.html");
 		unless($mech->success())
 		{
@@ -30,16 +30,17 @@ sub send
 		print "Loggin...\n" if($self->{'debug'});
 		$mech->submit_form();
 		$dest= $mech->response->content;
+		my ($hiddens) = $mech->find_all_inputs(type_regex => qr/^hidden$/, name => 'id');
 		$header = $mech->response->header("Content-Encoding");
 		$mech->update_html($self->_getgzip($dest)) if($header && $header eq "gzip");
 		foreach my $mob (@mobs)
         {
-			$mech->get("http://wwwl.way2sms.com/jsp/InstantSMS.jsp?val=0");
+			$mech->get("http://wwwl.way2sms.com/singles.action?mobileno=$mob&Token=".$hiddens->value);
 			$dest= $mech->response->content;
 			$header = $mech->response->header("Content-Encoding");
 			$mech->update_html($self->_getgzip($dest)) if($header && $header eq "gzip");
 			print "Sending ... \n" if($self->{'debug'});
-			my $isLoggedIn = $mech->form_with_fields(("MobNo","textArea"));
+			my $isLoggedIn = $mech->form_with_fields(("textArea"));
 			die 'Unable to login... Please check your credentials' unless $isLoggedIn;
 
 			print "$mob\n" if($self->{'debug'});
@@ -48,7 +49,6 @@ sub send
 				print "Error: Mobile numbers must be integers..." if($self->{'debug'});
 				next;
 			}
-			$mech->field("MobNo", $mob);
 			$mech->field("textArea", $msg);
 			$mech->submit_form();
 

@@ -8,7 +8,7 @@ use warnings;
 use WWW::Mechanize;
 use Compress::Zlib;
 use Carp qw( croak );
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 __END__
 
@@ -18,7 +18,7 @@ Net::SMS::WAY2SMS - Send SMS to any mobile phones in India using way2sms.com
 
 =head1 VERSION
 
-Version 0.06
+Version 0.07
 
 =cut
 
