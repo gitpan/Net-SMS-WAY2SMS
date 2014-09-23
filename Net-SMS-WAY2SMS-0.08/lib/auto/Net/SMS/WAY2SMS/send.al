@@ -22,7 +22,7 @@ sub send
 		my $header = $mech->response->header("Content-Encoding");
 		print "Fetching...\n" if($self->{'debug'});
 		$mech->update_html($self->_getgzip($dest)) if($header && $header eq "gzip");
-		$dest =~ s/<form .*name="loginForm"/<form action='..\/Login1.action' name="loginForm"/ig;
+		$dest =~ s/<form .*name="lgnFrm"/<form action='Login1.action' name="lgnFrm"/ig;
 		$mech->update_html($dest);
 		$mech->form_with_fields(("username","password"));
 		$mech->field("username", $self->{'user'});
@@ -30,17 +30,17 @@ sub send
 		print "Loggin...\n" if($self->{'debug'});
 		$mech->submit_form();
 		$dest= $mech->response->content;
-		my ($hiddens) = $mech->find_all_inputs(type_regex => qr/^hidden$/, name => 'id');
+		my ($hiddens) = $mech->find_all_inputs(type_regex => qr/^hidden$/, name => 'Token');
 		$header = $mech->response->header("Content-Encoding");
 		$mech->update_html($self->_getgzip($dest)) if($header && $header eq "gzip");
 		foreach my $mob (@mobs)
         {
-			$mech->get("http://wwwl.way2sms.com/singles.action?mobileno=$mob&Token=".$hiddens->value);
-			$dest= $mech->response->content;
+			$mech->get("http://site25.way2sms.com/sendSMS?mobile=$mob&Token=".$hiddens->value);
+			$dest= $mech->response->content();
 			$header = $mech->response->header("Content-Encoding");
 			$mech->update_html($self->_getgzip($dest)) if($header && $header eq "gzip");
 			print "Sending ... \n" if($self->{'debug'});
-			my $isLoggedIn = $mech->form_with_fields(("textArea"));
+			my $isLoggedIn = $mech->form_with_fields(("message"));
 			die 'Unable to login... Please check your credentials' unless $isLoggedIn;
 
 			print "$mob\n" if($self->{'debug'});
@@ -49,7 +49,10 @@ sub send
 				print "Error: Mobile numbers must be integers..." if($self->{'debug'});
 				next;
 			}
-			$mech->field("textArea", $msg);
+			$dest = $mech->content();
+			$dest =~ s/<form .*name="smsFrm"/<form action='\.\/smstoss.action' name="smsFrm"/ig;
+			$mech->update_html($dest);
+			$mech->field("message", $msg);
 			$mech->submit_form();
 
 			if($mech->success())
